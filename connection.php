@@ -1,7 +1,7 @@
 <?php
-    $user = 'fischt77';
-    $pass = 'j533977';
-    function getDb() {   
+    function getDB() {  
+        $user = 'fischt77';
+        $pass = 'j533977'; 
     try {
         $dbh = new PDO('mysql:host=localhost;dbname=fischt77',$user,$pass);  
         return $dbh;   
@@ -13,6 +13,7 @@
         die();
     }
 }
+getDb();
     
 
     ?>
