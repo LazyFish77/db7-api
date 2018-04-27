@@ -7,20 +7,25 @@
     } else if($_POST['registerUser'] == 'true') {
         createNewAccount();
     }
-    function passwordHash($strPassword) {
-        // $salt = mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
-        // $salt = base64_encode($salt);
-        // $salt = str_replace('+', '.', $salt);
-        $hash = crypt($strPassword, '$2y$10$' . '$');
+    function passwordHash($strPassword,$salt) {
+      
+        $hash = crypt($strPassword, '$2y$10$' . '$'.$salt);
         return $hash;
     }
+    function getSalt(){
+        $salt = mcrypt_create_iv(22, MCRYPT_DEV_URANDOM);
+        $salt = base64_encode($salt);
+        $salt = str_replace('+', '.', $salt);
+        return $salt;
+    };
     function createNewAccount() {
+        $dbh = getDB();
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $hash = passwordHash($password);
-        $dbh = getDB();
-        $statement = $dbh->prepare("INSERT INTO User(username, password)
-                VALUES('$username','$hash')");
+        $salt = getSalt();
+        $hash = passwordHash($password, $salt);
+        $statement = $dbh->prepare("INSERT INTO User(username, password, salt)
+                VALUES('$username','$hash', '$salt')");
         $statement->execute();
         $response;
         try {
@@ -31,10 +36,11 @@
         echo $json;
     }
     function verifyLogin() {
+        $dbh = getDB();
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $hash = passwordHash($password);
-        $dbh = getDB();
+        $salt = getUserSalt($username);
+        $hash = passwordHash($password, $salt);
         $statement = $dbh->prepare('SELECT username
             FROM User
             WHERE username = :username AND password = :password');
@@ -44,5 +50,18 @@
         $results = $statement->fetchAll();
         $json = json_encode($results);
          echo $json;
+    }
+    function getUserSalt($username) {
+        $dbh = getDB();
+        echo $username;
+        $statement = $dbh->prepare('SELECT salt
+            FROM User
+            WHERE username = :username');
+        $statement->bindValue(':username', $username);
+        $statement->execute();
+        $results = $statement->fetch();
+        // print_r($results);
+        return $results['salt'];
+        // echo $results['salt'];
     }
 ?>
