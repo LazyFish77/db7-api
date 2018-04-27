@@ -48,12 +48,16 @@
         $statement->bindValue(':password',  $hash);
         $statement->execute();
         $results = $statement->fetchAll();
-        $json = json_encode($results);
-         echo $json;
+        if(!empty($results)) {
+            $response = json_encode(true);    
+        } else {
+            $response = json_encode(false);
+        }
+        
+         echo $response;
     }
     function getUserSalt($username) {
         $dbh = getDB();
-        echo $username;
         $statement = $dbh->prepare('SELECT salt
             FROM User
             WHERE username = :username');
