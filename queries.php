@@ -77,7 +77,8 @@
                     SELECT * FROM Person, Relationship
                     WHERE Person.id = Relationship.Person_id1 AND relationship = :parent
                 ) AS t1
-            WHERE id = :id
+                WHERE id = :id
+            );
             '
         );
         $statement->bindValue(':id', $id);
@@ -120,7 +121,7 @@
     function getBothSetsOfGrandParents($id) {
         $dbh = getDB();
         $statement = $dbh->prepare(
-            `
+            '
             SELECT first_name, middle_name, last_name
             FROM Person
             WHERE id IN (
@@ -128,53 +129,64 @@
                 FROM (
                     SELECT * 
                     FROM Person, Relationship 
-                    WHERE Person.id = Relationship.Person_id1 AND relationship = 'child'
+                    WHERE Person.id = Relationship.Person_id1 AND relationship = :child
                 ) AS grandparents
                 WHERE id IN (
                     SELECT Person_id2
                     FROM (
                         SELECT *
                         FROM Person, Relationship
-                        WHERE Person.id = Relationship.Person_id1 AND relationship = 'child'
+                        WHERE Person.id = Relationship.Person_id1 AND relationship = :child
                     ) AS parents
                     WHERE id = :id
-                ));`
+                ));
+                '
         );
         $statement->bindValue(':id', $id);
+        $statement->bindValue(':child', 'child');
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
 
     //6
     function getAllGrandKids($id) {
         $dbh = getDB();
         $statement = $dbh->prepare(
-            `SELECT first_name, middle_name, last_name
+            'SELECT first_name, middle_name, last_name
                 FROM Person
                 WHERE id IN (
                     SELECT Person_id2 
                     FROM (
                         SELECT * 
                         FROM Person, Relationship 
-                        WHERE Person.id = Relationship.Person_id1 AND relationship = 'parent'
+                        WHERE Person.id = Relationship.Person_id1 AND relationship = :parent
                     ) AS grandparents
                     WHERE id IN (
                         SELECT Person_id2
                         FROM (
                             SELECT *
                             FROM Person, Relationship
-                            WHERE Person.id = Relationship.Person_id1 AND relationship = 'parent'
+                            WHERE Person.id = Relationship.Person_id1 AND relationship = :parent
                         ) AS parents
                         WHERE id = :id
                     )
-                );`
+                );'
         );
         $statement->bindValue(':id', $id);
+        $statement->bindValue(':parent', 'parent');
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
 
     //7
     function getSpouse($id) {
         $dbh = getDB();
         $statement = $dbh->prepare(
-            ` SELECT first_name, middle_name, last_name
+            ' SELECT first_name, middle_name, last_name
                 FROM Person
                 WHERE id IN (
                     SELECT Person_id
@@ -190,39 +202,56 @@
                                 WHERE PeopleAssocation.Person_id = :id
                             )
                         ) AS asso
-                        WHERE type = 'marriage'
+                        WHERE type = :marriage
                     ) 
                     AND Person_id <> :id
-                );`
+                );'
         );
         $statement->bindValue(':id', $id);
+        $statement->bindValue(':marriage', 'marriage');
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
 
     //8
     function getAllEvents($id) {
         $dbh = getDB();
-        $statement = $dbh->prepare(`SELECT * FROM Event WHERE Person_id = :id;`);
+        $statement = $dbh->prepare('SELECT * FROM Event WHERE Person_id = :id;');
         $statement->bindValue(':id', $id);
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
 
     //9
     function getFamilyMembersWithKeyword($keyword) {
         $dbh = getDB();
+        $keyword = '%'.$keyword.'%';
         $statement = $dbh->prepare(
-            `
-            SELECT first_name, middle_name, last_name
-                FROM Person
-                WHERE Person.notes
-                LIKE '%:keyword%';
-            `
+            'SELECT first_name, middle_name, last_name
+            FROM Person
+            WHERE Person.notes
+            LIKE :keyword;
+            '
         );
         $statement->bindValue(':keyword', $keyword);
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
-    //10
 
+    //10
     function getEventsOnDate($date) {
         $dbh = getDB();
-        $statement = $dbh->prepare(`SELECT * FROM Event WHERE date = :date;`);
-        $statement->bindValue(':date', $id);
+        $statement = $dbh->prepare('SELECT * FROM Event WHERE date = :date;');
+        $statement->bindValue(':date', $date);
+        $statement->execute();
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
     }
 ?>
