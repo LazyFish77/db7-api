@@ -3,7 +3,7 @@
     require 'connection.php';
     $dbh = getDB();
      if(!empty($_POST['getSameLastName'])){
-        getSameLastName();
+        getSameLastName($_POST['getSameLastName']);
     } else if(!empty($_POST['getParents'])) {
         getParents($_POST['getParents']);
     } else if(!empty($_POST['getChildern']))) {
