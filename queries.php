@@ -21,7 +21,10 @@
         getFamilyMembersWithKeyword($_POST['getFamilyMembersWithKeyword']);
     } else if(!empty($_POST['getEventsOnDate'])) {
         getEventsOnDate($_POST['getEventsOnDate']);
+    } else if (!empty($_POST['addPerson'])) {
+        addPerson($_POST['addPerson']);
     }
+    
 
     //1
     function getSameLastName($lastName) {
@@ -253,5 +256,35 @@
         $results = $statement->fetchAll();
         $results = json_encode($results);
         echo $results;
+    }
+
+    function addPerson($person) {
+        $person = json_decode($person);
+        // echo $person->firstName;
+        $dbh = getDb();
+        $statement = $dbh-> prepare(
+            'INSERT INTO Person(first_name, last_name, middle_name, gender, address, phone, notes )
+                VALUES(?,?,?,?,?,?,?)
+            ');
+        $statement->execute(array(
+            $person->firstName,
+            $person->lastName,
+            $person->middleName,
+            $person->gender,
+            $person->address,
+            $person->phone,
+            $person->notes
+        ));
+        $results = $statement->fetchAll();
+        $results = json_encode($results);
+        echo $results;
+    }
+
+    function setPrivilegeLevel($data) {
+        $person = json_decode($person);
+        $dbh = getDB();
+        $statement = "UPDATE User SET privilege_level='$data->level' WHERE username=$data->username";
+        $stmt = $dbh->prepare($sql);
+        $stmt->execute();
     }
 ?>
