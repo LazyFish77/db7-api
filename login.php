@@ -33,7 +33,7 @@
         } catch (Exception $e) {
             $response = json_encode(false);
         }
-        echo $json;
+        echo $response;
     }
     function verifyLogin() {
         $dbh = getDB();
