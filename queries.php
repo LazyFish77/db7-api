@@ -23,6 +23,8 @@
         getEventsOnDate($_POST['getEventsOnDate']);
     } else if (!empty($_POST['addPerson'])) {
         addPerson($_POST['addPerson']);
+    } else if (!empty($_POST['setPrivilegeLevel'])) {
+        setPrivilegeLevel($_POST['setPrivilegeLevel']);
     }
     
 
@@ -281,10 +283,17 @@
     }
 
     function setPrivilegeLevel($data) {
-        $person = json_decode($person);
+        echo $data;
+        $data = json_decode($data);
         $dbh = getDB();
-        $statement = "UPDATE User SET privilege_level='$data->level' WHERE username=$data->username";
+        $sql = "UPDATE User SET privilege_level='$data->level' WHERE username= '$data->username' ";
         $stmt = $dbh->prepare($sql);
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo $e;
+        }
+        // $results = json_encode($results);
+        // echo $results;
     }
 ?>
