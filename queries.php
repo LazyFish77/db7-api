@@ -25,6 +25,10 @@
         addPerson($_POST['addPerson']);
     } else if (!empty($_POST['setPrivilegeLevel'])) {
         setPrivilegeLevel($_POST['setPrivilegeLevel']);
+    } else if (!empty($_POST['deletePerson'])) {
+        deletPerson($_POST['deletePerson']);
+    } else if (!empty($_POST['getPrivilegeLevel'])){
+        getPrivilegeLevel($_POST['getPrivilegeLevel']);
     }
     
 
@@ -283,7 +287,6 @@
     }
 
     function setPrivilegeLevel($data) {
-        echo $data;
         $data = json_decode($data);
         $dbh = getDB();
         $sql = "UPDATE User SET privilege_level='$data->level' WHERE username= '$data->username' ";
@@ -295,5 +298,35 @@
         }
         // $results = json_encode($results);
         // echo $results;
+    }
+
+    function deletPerson($person) {
+        $dbh = getDB();
+        $person = json_decode($person);
+        $sql = "DELETE FROM Person WHERE first_name = '$person->firstName'
+            AND middle_name = '$person->middleName'
+            AND last_name = '$person->lastName'";
+            echo $sql;
+        $stmt = $dbh->prepare($sql);
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo $e;
+        }
+    }
+
+    function getPrivilegeLevel($userName) {
+        $dbh = getDB();
+        $userName = json_decode($userName);
+        $sql = "SELECT privilege_level FROM User WHERE username = '$userName'";
+        $stmt = $dbh->prepare($sql);
+        try {
+            $stmt->execute();
+            $results = $stmt->fetchAll();
+            $results = json_encode($results);
+            echo $results;
+        } catch (Exception $e) {
+            echo $e;
+        }
     }
 ?>

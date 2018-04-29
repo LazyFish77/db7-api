@@ -24,8 +24,8 @@
         $password = $_POST['password'];
         $salt = getSalt();
         $hash = passwordHash($password, $salt);
-        $statement = $dbh->prepare("INSERT INTO User(username, password, salt)
-                VALUES('$username','$hash', '$salt')");
+        $statement = $dbh->prepare("INSERT INTO User(username, password, salt, privilege_level)
+                VALUES('$username','$hash', '$salt', 'read')");
         $statement->execute();
         $response;
         try {
